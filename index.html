@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modelo Corporativo de Comunicación y Escalamiento</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="app-header">
+  <div class="header-inner">
+    <span class="header-logo">🏭</span>
+    <span class="header-title">Modelo Corporativo de Comunicación y Escalamiento</span>
+    <span class="header-badge">Vicepresidencia de Excelencia Corporativa</span>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+  </div>
+</header>
+
+<!-- Autosave indicator (visible durante el formulario) -->
+<div class="autosave-bar hidden" id="autosaveBar">
+  <span class="autosave-dot"></span>
+  <span id="autosaveMsg">Guardando automáticamente…</span>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app">
+
+  <!-- ========== SCREEN 1: BIENVENIDA ========== -->
+  <div class="screen active" id="screen-welcome">
+
+    <!-- Banner de borrador recuperado -->
+    <div class="draft-banner hidden" id="draftBanner">
+      <span class="icon">💾</span>
+      <div class="draft-banner-body">
+        <strong>Tienes respuestas guardadas</strong>
+        Se encontró un borrador guardado automáticamente en este navegador.
+        ¿Deseas continuar donde lo dejaste?
+        <div class="draft-banner-actions">
+          <button class="btn btn-primary btn-sm" onclick="resumeDraft()">Continuar borrador</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearDraft()">Empezar de nuevo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="welcome-hero">
+      <span class="hero-tag">Vicepresidencia de Excelencia Corporativa</span>
+      <h1 class="hero-title">Modelo Corporativo de<br>Comunicación y Escalamiento</h1>
+      <p class="hero-subtitle">Inventario de situaciones que requieren comunicación</p>
+      <div class="hero-meta">
+        <span>📅 <span id="todayDate"></span></span>
+        <span>🏢 Industria Cosmética &amp; OTC</span>
+        <span>📋 Formulario de levantamiento</span>
+      </div>
+    </div>
+
+    <div class="cards-grid mt-24">
+      <div class="card">
+        <div class="card-title">🎯 Objetivo</div>
+        <div class="card-body">
+          <p>Identificar las situaciones que realmente requieren <strong>comunicación, coordinación o escalamiento</strong> dentro de la Vicepresidencia de Excelencia Corporativa.</p>
+          <p>Esta información será la base para definir el modelo que especifique tipo de comunicación, canal, nivel de escalamiento, tiempo de respuesta y responsable.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📌 Alcance</div>
+        <div class="card-body">
+          <p>Este ejercicio <strong>no documenta actividades normales</strong> de los procesos. Solo identifica situaciones que:</p>
+          <p>• Exceden la autonomía normal del proceso.<br>
+             • Impactan uno o varios procesos adicionales.<br>
+             • Generan riesgos para el negocio, el cliente o el cumplimiento regulatorio.<br>
+             • Requieren decisiones en un nivel diferente de la organización.<br>
+             • Pueden comprometer la continuidad operativa o los objetivos estratégicos.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📝 Instrucciones</div>
+        <div class="card-body">
+          <p>1. Selecciona tu proceso en la siguiente pantalla.</p>
+          <p>2. Para cada situación, selecciona <strong>Frecuencia</strong> e <strong>Impacto</strong>.</p>
+          <p>3. Si la situación <strong>no aplica</strong>, selecciona "No aplica" en Frecuencia.</p>
+          <p>4. Las respuestas se guardan automáticamente en tu navegador. Si cierras la pestaña, al volver encontrarás tu progreso.</p>
+          <p>5. Al enviar, descarga tu archivo JSON o CSV y compártelo con el equipo.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-title">📊 Criterios de Frecuencia</div>
+        <table class="criteria-table">
+          <thead><tr><th>Opción</th><th>Criterio</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-alta">Alta</span></td><td>Ocurre semanalmente o varias veces al mes.</td></tr>
+            <tr><td><span class="tag tag-media">Media</span></td><td>Ocurre ocasionalmente durante el año o en proyectos específicos.</td></tr>
+            <tr><td><span class="tag tag-baja">Baja</span></td><td>Es poco frecuente o excepcional, pero puede presentarse.</td></tr>
+            <tr><td><span class="tag tag-na">No aplica</span></td><td>No corresponde al proceso.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">⚡ Criterios de Impacto</div>
+        <table class="criteria-table">
+          <thead><tr><th>Opción</th><th>Criterio</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-alto">Alto</span></td><td>Puede afectar clientes, detener operación, generar incumplimientos regulatorios, afectar certificaciones, seguridad, ambiente o reputación.</td></tr>
+            <tr><td><span class="tag tag-medio">Medio</span></td><td>Genera reprocesos, retrasos, costos adicionales o afecta otros procesos.</td></tr>
+            <tr><td><span class="tag tag-bajo">Bajo</span></td><td>Puede resolverse dentro del mismo proceso sin afectar significativamente a otros.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo('screen-select')">Comenzar &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 2: SELECCIÓN DE PROCESO ========== -->
+  <div class="screen" id="screen-select">
+    <div style="margin-top:28px">
+      <h2 class="section-heading">Selecciona tu proceso</h2>
+      <p class="section-sub">El formulario mostrará las situaciones de tu proceso más las situaciones transversales.</p>
+
+      <div class="name-field">
+        <label class="name-field-label" for="nombreInput">Tu nombre</label>
+        <input type="text" id="nombreInput" class="name-field-input" placeholder="Nombre y apellido" autocomplete="name" oninput="onNombreInput(this.value)">
+      </div>
+
+      <div class="process-grid" id="processGrid"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo('screen-welcome')">← Regresar</button>
+        <button class="btn btn-primary" id="btnStartForm" disabled onclick="startForm()">Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 3: FORMULARIO ========== -->
+  <div class="screen" id="screen-form">
+    <div id="formNav"></div>
+    <div id="formContent"></div>
+    <div class="validation-banner hidden" id="validationBanner">
+      <span class="icon">⚠️</span>
+      <span id="validationMsg">Por favor completa todos los campos requeridos antes de continuar.</span>
+    </div>
+    <div class="btn-row" id="formButtons"></div>
+  </div>
+
+  <!-- ========== SCREEN 4: RESUMEN ========== -->
+  <div class="screen" id="screen-summary">
+    <div class="summary-screen">
+      <div class="summary-hero">
+        <div class="summary-check">✅</div>
+        <h2>¡Formulario completado!</h2>
+        <p id="summarySubtitle">Gracias por tu participación.</p>
+      </div>
+      <div class="submit-status hidden" id="submitStatus"></div>
+      <div class="summary-stats" id="summaryStats"></div>
+      <div id="summaryContent"></div>
+      <div class="btn-row">
+        <button class="btn btn-download" onclick="downloadJSON()">⬇ Descargar JSON</button>
+        <button class="btn btn-download-csv" onclick="downloadCSV()">⬇ Descargar CSV</button>
+        <button class="btn btn-ghost" onclick="restartForm()">🔄 Nueva respuesta</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
