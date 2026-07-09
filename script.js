@@ -34,7 +34,7 @@ function getMsalInstance() {
 
 async function getGraphToken() {
   const instance = getMsalInstance();
-  const scopes = ["Files.ReadWrite"];
+  const scopes = ["Files.ReadWrite", "Sites.ReadWrite.All"];
   const accounts = instance.getAllAccounts();
   if (accounts.length > 0) {
     try {
