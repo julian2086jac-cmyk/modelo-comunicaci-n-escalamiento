@@ -37,7 +37,7 @@ let lastTokenAccount = "";
 
 async function getGraphToken() {
   const instance = getMsalInstance();
-  const scopes = ["Files.ReadWrite", "Sites.ReadWrite.All"];
+  const scopes = ["Sites.ReadWrite.All"];
   const accounts = instance.getAllAccounts();
   if (accounts.length > 0) {
     try {
