@@ -32,6 +32,9 @@ function getMsalInstance() {
   return msalInstance;
 }
 
+let lastTokenScopes = [];
+let lastTokenAccount = "";
+
 async function getGraphToken() {
   const instance = getMsalInstance();
   const scopes = ["Files.ReadWrite", "Sites.ReadWrite.All"];
@@ -39,12 +42,16 @@ async function getGraphToken() {
   if (accounts.length > 0) {
     try {
       const result = await instance.acquireTokenSilent({ scopes, account: accounts[0] });
+      lastTokenScopes = result.scopes;
+      lastTokenAccount = result.account ? result.account.username : "";
       return result.accessToken;
     } catch (e) {
       // el token silencioso falló (expiró, revocado, etc.) — se pide login de nuevo abajo
     }
   }
-  const result = await instance.loginPopup({ scopes });
+  const result = await instance.loginPopup({ scopes, prompt: "consent" });
+  lastTokenScopes = result.scopes;
+  lastTokenAccount = result.account ? result.account.username : "";
   return result.accessToken;
 }
 
@@ -692,7 +699,8 @@ async function sendToExcel(exportData) {
 
     showSubmitStatus('success', '✅ Tus respuestas se guardaron automáticamente en Excel.');
   } catch (e) {
-    showSubmitStatus('warning', '⚠️ No se pudo enviar automáticamente (' + e.message + '). Descarga tu JSON o CSV abajo y compártelo con el equipo de Excelencia Corporativa.');
+    const diag = ' [diag] cuenta: ' + lastTokenAccount + ' | scopes del token: ' + JSON.stringify(lastTokenScopes) + ' | drive: ' + EXCEL_DRIVE_ID + ' | item: ' + EXCEL_ITEM_ID;
+    showSubmitStatus('warning', '⚠️ No se pudo enviar automáticamente (' + e.message + diag + '). Descarga tu JSON o CSV abajo y compártelo con el equipo de Excelencia Corporativa.');
   }
 }
 
