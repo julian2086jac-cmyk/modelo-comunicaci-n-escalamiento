@@ -12,7 +12,7 @@
 const STORAGE_KEY = 'MCE_draft_v1';
 
 // URL del Web App de Google Apps Script — ver docs/GUIA_GOOGLE_SHEETS.md
-const APPS_SCRIPT_URL = "PON_AQUI_LA_URL_DEL_WEB_APP_DE_APPS_SCRIPT";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXGPgReMcw8M8hIBswmlHd6Qx4lxZ3YyPcm-CfzBhZIx_M5LhXJYH06rQZ38Srxg24ag/exec";
 
 /* ============================================================
    ESTADO
