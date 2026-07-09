@@ -10,7 +10,59 @@
    CONSTANTES
    ============================================================ */
 const STORAGE_KEY = 'MCE_draft_v1';
-const FLOW_URL = "PON_AQUI_LA_URL_DEL_FLUJO_DE_POWER_AUTOMATE";
+
+// Registro de aplicación en Azure AD — ver docs/GUIA_AZURE_AD.md
+const AZURE_CLIENT_ID = "3371848c-ad5c-47b0-adea-a3d4b2abf908";
+const AZURE_TENANT_ID = "eef48c79-e718-4ebd-b3c5-1c11368b1759";
+
+// Ubicación fija del archivo Excel en SharePoint (ya resuelta, no hace falta cambiarla)
+const EXCEL_DRIVE_ID = "b!oTWwotgO7UyfHzusUjAfA9GdzHlt3xpEoLT_SC9gC4zu8XqjUpHURLRHivHRu1no";
+const EXCEL_ITEM_ID = "01DT6T2IXVMIIY5XX44FGIKWCBFKNE7GA5";
+
+let msalInstance = null;
+function getMsalInstance() {
+  if (msalInstance) return msalInstance;
+  msalInstance = new msal.PublicClientApplication({
+    auth: {
+      clientId: AZURE_CLIENT_ID,
+      authority: `https://login.microsoftonline.com/${AZURE_TENANT_ID}`,
+      redirectUri: window.location.href.split('#')[0].split('?')[0],
+    },
+  });
+  return msalInstance;
+}
+
+async function getGraphToken() {
+  const instance = getMsalInstance();
+  const scopes = ["Files.ReadWrite"];
+  const accounts = instance.getAllAccounts();
+  if (accounts.length > 0) {
+    try {
+      const result = await instance.acquireTokenSilent({ scopes, account: accounts[0] });
+      return result.accessToken;
+    } catch (e) {
+      // el token silencioso falló (expiró, revocado, etc.) — se pide login de nuevo abajo
+    }
+  }
+  const result = await instance.loginPopup({ scopes });
+  return result.accessToken;
+}
+
+async function addRowsToTable(token, tableName, rows) {
+  const url = `https://graph.microsoft.com/v1.0/drives/${EXCEL_DRIVE_ID}/items/${EXCEL_ITEM_ID}/workbook/tables/${tableName}/rows/add`;
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ values: rows }),
+  });
+  if (!resp.ok) {
+    const detail = await resp.text();
+    throw new Error(`HTTP ${resp.status} al escribir en la tabla ${tableName}: ${detail}`);
+  }
+}
 
 /* ============================================================
    ESTADO
@@ -621,17 +673,23 @@ function showSubmitStatus(kind, message) {
 }
 
 async function sendToExcel(exportData) {
-  if (!FLOW_URL || FLOW_URL.includes('PON_AQUI')) {
+  if (!AZURE_CLIENT_ID || AZURE_CLIENT_ID.includes('PON_AQUI') || !AZURE_TENANT_ID || AZURE_TENANT_ID.includes('PON_AQUI')) {
     showSubmitStatus('warning', '⚠️ Envío automático no configurado todavía. Descarga tu JSON o CSV abajo y compártelo con el equipo de Excelencia Corporativa.');
     return;
   }
   try {
-    const resp = await fetch(FLOW_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(exportData)
-    });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const token = await getGraphToken();
+
+    const respuestasRows = exportData.respuestas.map(r => [
+      exportData.nombre, exportData.proceso, exportData.fecha, r.seccion, r.situacion, r.frecuencia, r.impacto, r.observaciones
+    ]);
+    const preguntasRows = exportData.preguntasAbiertas.map(p => [
+      exportData.nombre, exportData.proceso, exportData.fecha, p.seccion, p.pregunta, p.respuesta
+    ]);
+
+    await addRowsToTable(token, "Respuestas", respuestasRows);
+    await addRowsToTable(token, "PreguntasAbiertas", preguntasRows);
+
     showSubmitStatus('success', '✅ Tus respuestas se guardaron automáticamente en Excel.');
   } catch (e) {
     showSubmitStatus('warning', '⚠️ No se pudo enviar automáticamente (' + e.message + '). Descarga tu JSON o CSV abajo y compártelo con el equipo de Excelencia Corporativa.');
